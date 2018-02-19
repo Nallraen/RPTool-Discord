@@ -1,16 +1,33 @@
-package fr.originalpainz.test;
+package fr.originalpainz.rptool;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.Properties;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
@@ -21,8 +38,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import fr.originalpainz.rptool.utils.Accounts;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
@@ -30,40 +49,95 @@ import net.arikia.dev.drpc.callbacks.ReadyCallback;
 
 public class Main {
 	
-	
-	
-	// Le compte "Admin" (juste pour le fun)
-	static String _PSEUDO_ADMIN = ""; // Pseudo à rentrer à la compilation ;)
-	static String _MDP_ADMIN = ""; // Idem pour le mdp :D
-
-	
-	
-	
 	// Quelques Values
 	static int score = 0;
 	public static String title = "RPTool by OriginalPainZ";
 	public static String pseudo;
+	public static String mdp;
 	public static String _Dev = "OriginalPainZ";
 	public static String AppId;
-	public static String _VERSION = "alpha_1.4";
+	public static String _VERSION = "alpha_1.6";
+	private static String Version;
+	
+	public static String ConfigInfo = "  English :\n"
+									+ "  This is not a real config file! \n"
+									+ "  It just contain a save of your previous RP (Before to close the app) \n \n"
+			 						+ "  FranÃ§ais: \n"
+			 						+ "  Ceci n\'est pas rÃ©ellement un fichier de config!\n"
+			 						+ "  Il contient seulement ce que vous avez mis dans votre dernier RP (avant de fermer l\'appli)";
+	
+	
+	/* 
+	 * Quelques ClientID Utiles :
+	 *
+	 * D&M -> 413318723085139979
+	 * RPTool -> 414595521592950784
+	 */
+	
+	// Les comptes
+	Accounts acc;
+	
+	// Test
+	static int a;
 	
 	
     public static boolean ready = false;
-	private static String Version;
 
-    public static void main(String[] args){
-    	// Message préventif --> Betâ build !
+    public static void main(String[] args) throws URISyntaxException{
+    	
+    	
+    	// La config.properties
+    	
+    	Properties prop = new Properties();
+    	OutputStream output = null;
+    	InputStream config = null;
+
+    	try {
+			config = new FileInputStream("config.properties");
+		} catch (FileNotFoundException e1) {    	
+		try{
+    		output = new FileOutputStream("config.properties");
+    		
+    		// Initialize values
+    		prop.setProperty("ligneHaute", "Nothing on top line");
+    		prop.setProperty("ligneBasse", "Nothing on bot line");
+    		
+    		// Save values
+    		prop.store(output, ConfigInfo);
+    		
+    	} catch (IOException io){
+    		io.printStackTrace();
+    	} finally{
+    		if (output !=null){
+    			try{
+    				output.close();
+    			} catch (IOException io){
+    				io.printStackTrace();
+    			}
+    		}
+    	}
+		}
+
+    	
+		
+    	// Message prÃ©ventif --> BetÃ¢ build !
     	JOptionPane warnBeta = new JOptionPane();
-    	warnBeta.showMessageDialog(null, "Cette application est encore en phase de développement !", title+" | Application en développement !", JOptionPane.WARNING_MESSAGE);
+    	warnBeta.showMessageDialog(null, "Cette application est encore en phase de dÃ©veloppement !", title+" | Application en dÃ©veloppement !", JOptionPane.WARNING_MESSAGE);
     	
     	// Test de la version
- /*   	try {
-			URL url = new URL("https://xixzayn.000webhostapp.com/version.txt");
-			URLConnection con=url.openConnection();
-			Version = con.getContent().toString();
-			System.out.println(con.getContent());
+    	try {
+			URL url = new URL("/*Un truc top secret */");
+			InputStream is = url.openStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			StringBuilder sb = new StringBuilder();
+			int cp;
+			while ((cp = rd.read()) != -1)
+			   sb.append((char) cp);
+			Version = sb.toString();
+			
+			
 			System.out.println(Version);
-			if(Version != _VERSION){
+			if(!Version.equalsIgnoreCase(_VERSION)){
 				Update u = new Update();
 				return;
 			}
@@ -72,19 +146,36 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-   */ 	
+    	
     	
     	// Le pseudo
     	JOptionPane p = new JOptionPane();
     	pseudo = p.showInputDialog(null, "Veuillez entrez votre pseudo: ", title, JOptionPane.QUESTION_MESSAGE);
+    	
+    	if(pseudo.equalsIgnoreCase(/*Encore plus de trucs secret :P*/){
+        	mdp = p.showInputDialog(null, "Veuillez entrez votre mot de passe: ", title, JOptionPane.QUESTION_MESSAGE);
+    	}else{
+    		JOptionPane error = null;
+    		error.showConfirmDialog(null, "Une erreur est survenue...\n Vous ne faites pas partie de la liste des personnes autorisÃ©s Ã  utilisÃ© l'appli... \n Esssayez de contacter son dÃ©veloppeur !",title,JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+    		return;
+    	}
 
     	
-    	// La connectivité au jeu
+    	// La connectivitÃ© au jeu
     	JOptionPane co = new JOptionPane(), co2 = new JOptionPane();
-    	if(pseudo.equals(_Dev)){
-    		AppId = co.showInputDialog(null, "Veuillez entrez l'ID de votre jeu/application ! \n \nDebugMode: 413318723085139979 ", title, JOptionPane.QUESTION_MESSAGE);
-    	}else{
+    	if(mdp.equalsIgnoreCase(/* Variables des mdp comptes */)){
+    		
     		AppId = co.showInputDialog(null, "Veuillez entrez l'ID de votre jeu/application !", title, JOptionPane.QUESTION_MESSAGE);
+    		if(AppId.isEmpty()){
+    			JOptionPane error = null;
+    			error.showConfirmDialog(null, "Une erreur est survenu...\nL'ID ne peux pas Ãªtre vide !", title, JOptionPane.ERROR_MESSAGE);
+    			
+    		}
+    	}else{
+    		JOptionPane error = null;
+    		error.showConfirmDialog(null, "Une erreur est survenue...\n Le mot de passe est incorrect ! \n Ou vous Ãªtes un petit malin mais vous ne faites pas partie de la liste des personnes autorisÃ©s Ã  utilisÃ© l'appli... \n Esssayez de contacter son dÃ©veloppeur !",title,JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+    		return;
+    		//	AppId = co.showInputDialog(null, "Veuillez entrez l'ID de votre jeu/application !", title, JOptionPane.QUESTION_MESSAGE);
     	}
     	
     	
@@ -94,9 +185,9 @@ public class Main {
 
         initDiscord(AppId);
         
-        co2.showMessageDialog(null, "Votre clé a été défini sur " + AppId + "", title, JOptionPane.INFORMATION_MESSAGE);
+        co2.showMessageDialog(null, "Votre clÃ© a Ã©tÃ© dÃ©fini sur " + AppId + "", title, JOptionPane.INFORMATION_MESSAGE);
 
-        Window w = new Window();
+        Window w1 = new Window();
         
         
         while(running){
@@ -127,51 +218,25 @@ public class Main {
         }
 
         DiscordRPC.DiscordShutdown();
-        w.dispose();
+        w1.dispose();
     }
 
-    // La fenêtre
-    
-    static class Panneau extends JPanel{
-    	private int posX = -50;
-    	private int posY = -50;
-    	
-    	public void paintComponent(Graphics g){
-    		g.setColor(Color.white);
-    		g.drawString("My name is PainZ :)", posX, posY);
-    	}
-    	
-    	public int getPosX(){
-    		return posX;
-    	}
-    	
-    	public int getPosY(){
-    		return posY;
-    	}
-    	
-    	public void setPosX(int posX){
-    		this.posX = posX;
-    	}
-    	
-    	public void setPosY(int posY){
-    		this.posY = posY;
-    	}
-    }
+    // La fenÃªtre
     
     static class Update extends JFrame implements ActionListener{
 
-    	
     	JPanel be = new JPanel();
     	
     	JButton update = new JButton("Update !");
     	
-    	JLabel u = new JLabel("Votre appilcation n'est pas à jour !");
-    	JLabel u2 = new JLabel("Votre version: "+ _VERSION);
-    	JLabel u3 = new JLabel("\nDernière version: "+Version);
+    	JTextArea u = new JTextArea("Votre appilcation n'est pas Ã  jour !"
+    							   +"\nVotre version: "+ _VERSION
+    							   +"\nDerniÃ¨re version: "+Version);
     	
-    	public Update(){
+    	
+    	public Update() throws IOException, URISyntaxException{
     		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    		setTitle("Mise à jour requise");
+    		setTitle("Mise Ã  jour requise");
     		setResizable(false);
     		setSize(400, 200);
     		setLocationRelativeTo(null);
@@ -183,20 +248,33 @@ public class Main {
     		JPanel a = new JPanel();
     		
     		a.add(u);
-    		a.add(u2);
-    		a.add(u3);
     		a.add(update);
     		
     		be.add(a, BorderLayout.CENTER);
     		
             setContentPane(be);
             setVisible(true);
-    		
+
+			Desktop d = Desktop.getDesktop();
+			d.browse(new URI("https://github.com/Nallraen/RPTool-Discord/releases"));
     	}
     	
     	
     	
 		public void actionPerformed(ActionEvent arg0) {
+			try {
+				WebUpdate();
+			} catch (IOException | URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+
+		private void WebUpdate() throws IOException, URISyntaxException {	
+			Desktop d = Desktop.getDesktop();
+			d.browse(new URI("www.google.com"));
 			
 		}
     	
@@ -204,7 +282,6 @@ public class Main {
     
     static class Window extends JFrame implements ActionListener{
     	
-    	private Panneau pan = new Panneau();
     	JPanel be = new JPanel();
     	
     	// Une Liste de test
@@ -214,11 +291,20 @@ public class Main {
     	JComboBox c = new JComboBox(options);
     	
     	// Les boutons
-    	JButton b1 = new JButton("Bouton A");
+    	JButton b1 = new JButton("Entrer");
     	JButton b2 = new JButton("Bouton B");
     	
     	// Le petit bienvenue au top de l'appli
     	JLabel _p = new JLabel("Bienvenue " + pseudo + " sur RPTool !");
+    	
+    	JLabel vide = new JLabel("");
+    	
+    	JTextArea info = new JTextArea("Alpha_1.6: "
+    									+ "\n DÃ©sormais lorsque vous fermez l'applications,\n "
+    									+ "les derniÃ¨res valeurs que vous aurez saisis seront sauvegardÃ©s !\n\n"
+    									+ "Il est dÃ©conseillÃ© de mettre des accents, ces derniers\n"
+    									+"ne sont pas pris en compte et crÃ©er des erreurs...\n"
+    									+ "Cordialement,\nPainZ");
     	
     	// Les TextFields
     	JTextField jtf = new JTextField();
@@ -235,26 +321,32 @@ public class Main {
             setTitle(title);
             setSize(500, 350);
             setLocationRelativeTo(null);
+            setBackground(Color.WHITE);
             be.setBackground(Color.white);
             be.setLayout(new BorderLayout());
             
             JPanel a = new JPanel();
             JPanel b = new JPanel();
+            a.setBackground(Color.white);
+            b.setBackground(Color.WHITE);
             
+            info.setBackground(Color.white);
             
             Font font = new Font("Tahoma", Font.ITALIC ,15);
             jtf.setFont(font);
             jtf.setPreferredSize(new Dimension(150, 40));
             jtf.setForeground(Color.BLACK);
-            jtf.setBorder(BorderFactory.createTitledBorder("Test 1"));
+            jtf.setBorder(BorderFactory.createTitledBorder("Ligne haute"));
             jtf2.setFont(font);
             jtf2.setPreferredSize(new Dimension(150, 40));
             jtf2.setForeground(Color.BLACK);
-            jtf2.setBorder(BorderFactory.createTitledBorder("Test 2"));
+            jtf2.setBorder(BorderFactory.createTitledBorder("Ligne Basse"));
             
             a.add(jtf);
             a.add(jtf2);
             a.add(b1);
+            a.add(vide);
+            a.add(info);
             b.add(_p);
             
             b1.addActionListener(this);
@@ -268,7 +360,7 @@ public class Main {
    /*         
             
             c.setPreferredSize(new Dimension(200, 30));
-            c.setSelectedIndex(3); // Pour choisir il faut faire -> Total options - 1 = numéro option... Ici {...} est la 4è option donc 4 - 1 = 3 :)
+            c.setSelectedIndex(3); // Pour choisir il faut faire -> Total options - 1 = numÃ©ro option... Ici {...} est la 4Ã¨ option donc 4 - 1 = 3 :)
             
             
             JPanel a = new JPanel();
@@ -307,19 +399,78 @@ public class Main {
 
         
         public void actionPerformed(ActionEvent arg0){
-        	String textA = jtf.getText();
-        	String textB = jtf2.getText();
-        	DiscordRPC.DiscordRunCallbacks();
-        	DiscordRichPresence r = new DiscordRichPresence();
-        	r.state = textB;
-        	r.details= textA;
-        	DiscordRPC.DiscordUpdatePresence(r);
+        	
+        	Properties prop = new Properties();
+        	OutputStream output=null;
+        	
+        	try{
+        		output = new FileOutputStream("config.properties");
+        		
+            	
+            	long i = new Date().getTime();
+            	String textA = jtf.getText();
+            	String textB = jtf2.getText();
+            	DiscordRPC.DiscordRunCallbacks();
+            	DiscordRichPresence r = new DiscordRichPresence();
+            	if(textA.isEmpty()){
+            		r.state = textB;
+            		r.details = "";
+            		r.startTimestamp = (i + 1)*60;
+            	//	r.largeImageKey = "painz";
+            		r.spectateSecret ="MTIzNDV8MTIzNDV8MTMyNDU0";
+                	DiscordRPC.DiscordUpdatePresence(r);
+                	
+                	// Save values in config File
+                	prop.setProperty("ligneBasse", textB);
+                	prop.store(output, ConfigInfo);
+                	
+            	}else if(textB.isEmpty()){
+            		r.state = "";
+            		r.details = textA;
+            		r.startTimestamp = (i + 1)*60;
+            	//	r.largeImageKey = "painz";
+            		r.spectateSecret ="MTIzNDV8MTIzNDV8MTMyNDU0";
+                	DiscordRPC.DiscordUpdatePresence(r);
+                	
+                	// Save values in config file
+                	prop.setProperty("ligneHaute", textA);
+                	prop.store(output, ConfigInfo);
+            	}else{
+            		r.state = textB;
+            		r.details= textA;
+            		r.startTimestamp = (i + 1)*60;
+            //		r.largeImageKey = "painz";
+            		r.spectateSecret ="MTIzNDV8MTIzNDV8MTMyNDU0";
+            		
+                	DiscordRPC.DiscordUpdatePresence(r);
+                	
+                	// Save values
+                	prop.setProperty("ligneHaute", textA);
+                	prop.setProperty("ligneBasse", textB);
+                	
+                	prop.store(output, ConfigInfo);
+            	}
+        		
+        		
+        	} catch(IOException io) {
+        		io.printStackTrace();
+        	} finally{
+        		if(output!=null){
+        			try{
+        				output.close();
+        			}catch(IOException io){
+        				io.printStackTrace();
+        			}
+        		}
+        	}
+        	
+
 
         } 
         
     /*    public void actionPerformed(ActionEvent arg0){
         	c.getSelectedItem();
-        	String text = c.getSelectedItem().toString(); // Texte à afficher sur le RP Discord
+        	String text = c.getSelectedItem().toString(); // Texte Ã  afficher sur le RP Discord
         	DiscordRPC.DiscordRunCallbacks();
         	DiscordRichPresence r = new DiscordRichPresence();
         	r.state = "Suivez mon live : twitch.com/nallraen";
@@ -341,7 +492,7 @@ public class Main {
         // FIN BOUTON
     }
     
-    // FIN DE LA CONFIG DE LA FENEÊTRE
+    // FIN DE LA CONFIG DE LA FENEÃŠTRE
     
 
 
@@ -356,124 +507,54 @@ public class Main {
     private static void initDiscord(String str){
         DiscordEventHandlers handlers = new DiscordEventHandlers();
         handlers.ready = new Ready();
-        DiscordRPC.DiscordInitialize(str, handlers, true);  // D&M -> 413318723085139979
+        DiscordRPC.DiscordInitialize(str, handlers, true);  
     }
 
     private static class Ready implements ReadyCallback{
+    	
+    	Properties prop = new Properties();
+    	InputStream input = null;
+    	
+
+    	
         public void apply(){
-            System.out.println("Ready.");
-            DiscordRichPresence rich = new DiscordRichPresence();
-            rich.largeImageKey = "PainZ1";
-            rich.spectateSecret = "";
-            rich.joinSecret = "";
-            rich.partySize = 1;
-            rich.partyMax = 2;
-            rich.state = title;
-            rich.details = "Dev in progress...";
-            DiscordRPC.DiscordUpdatePresence(rich);
-            ready = true;
+        	
+        	try{
+        		input = new FileInputStream("config.properties");
+        		
+        		// Load values
+        		
+        		prop.load(input);
+        		
+        		// Get Values
+        		
+        		String topLine = prop.getProperty("ligneHaute");
+        		String botLine = prop.getProperty("ligneBasse");
+            	
+            	System.out.println("Ready.");
+                DiscordRichPresence rich = new DiscordRichPresence();
+            //    rich.largeImageKey = "painz";
+                rich.spectateSecret = "";
+                rich.joinSecret = "";
+                rich.partySize = 1;
+                rich.partyMax = 2;
+                rich.state = botLine; // Ligne basse
+                rich.details = topLine; // Ligne haute
+                DiscordRPC.DiscordUpdatePresence(rich);
+                ready = true;
+        	} catch (IOException io){
+        		io.printStackTrace();
+        	} finally {
+        		if (input !=null){
+        			try{
+        				input.close();
+        			} catch (IOException io){
+        				io.printStackTrace();
+        			}
+        		}
+        	}
+
         }
     }
-    
-    // Première boite de dialogue de connexion !
-    public class ConnexionBoxInfo{
-    	private String pseudo, appid;
-    	
-    	public ConnexionBoxInfo(){}
-    	public ConnexionBoxInfo(String pseudo, String appid){
-    		this.pseudo = pseudo;
-    		this.appid = appid;
-    	}
-    	
-    	public String toString(){
-    		String str;
-    		if(this.pseudo != null && this.appid != null){
-    			str = "Desc des valeurs rentrées";
-    			str += "Pseudo: "+this.pseudo+"\n";
-    			str += "AppId: "+this.appid+"\n";
-    		}else{
-    			str = "Acune info disponible !";
-    		}
-    		return str;
-    	}
-    
-    }
-    
-    public class ConnexionBox extends JDialog{
-    	
-    	private ConnexionBoxInfo Info = new ConnexionBoxInfo();
-    	private boolean sendData;
-    	private JLabel pseudoLabel, appidLabel;
-    	private JTextField pseudo, appid;
-    	
-    	public ConnexionBox(JFrame parent, String title, boolean modal){
-    		super(parent, title, modal);
-    		this.setSize(200, 80);
-    		this.setLocationRelativeTo(null);
-    		this.setResizable(false);
-    		
-    		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-    	    this.initComponent();
-    	}
-    	
-    	public ConnexionBoxInfo showCB(){
-    		this.sendData = false;
-    		this.setVisible(true);
-    		return this.Info;
-    	}
-    	
-    	private void initComponent(){
-    		
-    		// Le pseudo
-    		JPanel panPseudo = new JPanel();
-    		panPseudo.setBackground(Color.white);
-    		panPseudo.setPreferredSize(new Dimension(220, 60));
-    		pseudo = new JTextField();
-    		pseudo.setPreferredSize(new Dimension(100, 25));
-    		panPseudo.setBorder(BorderFactory.createTitledBorder("Votre pseudo"));
-    		pseudoLabel = new JLabel("Saisir votre pseudo: ");
-    		panPseudo.add(pseudoLabel, pseudo);
-    		
-    		// L'AppId
-    		JPanel panApp = new JPanel();
-    		panApp.setBackground(Color.WHITE);
-    		panApp.setPreferredSize(new Dimension(220,60));
-    		appid = new JTextField();
-    		appid.setPreferredSize(new Dimension(100,25));
-    		panApp.setBorder(BorderFactory.createTitledBorder("Votre AppId"));
-    		appidLabel = new JLabel("Saisissez votre AppId");
-    		panApp.add(appidLabel, appid);
-    		
-    		JPanel content = new JPanel();
-    		content.setBackground(Color.white);
-    		content.add(panApp, panPseudo);
-    		
-    		JPanel control = new JPanel();
-    		JButton okButton = new JButton("Confirmer");
-    		
-    		okButton.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent arg0){
-    				Info = new ConnexionBoxInfo(pseudo.getText(), appid.getText());
-    				setVisible(false);
-    			}
-    			
-    		});
-    		
-    		JButton cancelButton = new JButton("Annuler");
-    		cancelButton.addActionListener(new ActionListener(){
-    			public void actionPerformed(ActionEvent arg0){
-    				setVisible(false);
-    			}
-    		});
-    		
-    		control.add(okButton,cancelButton);
-    		
-    		this.getContentPane().add(content, BorderLayout.CENTER);
-    		this.getContentPane().add(control, BorderLayout.SOUTH);
-    		
-    	}
-    }
-    
-    
     
 }

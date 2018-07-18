@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<club version="1">
+  <!-- Name of the team -->
+	<name>DevAndMe</name>
+  
+  <!-- Zone of the team (See in game for the zone structure) -->
+	<zone>World|France|Occitanie</zone>
+  
+  <!-- City of the team -->
+	<city>Aude</city>
+  
+  <!-- Colors of the team (Used on the spawns, the poles and the UI) -->
+	<color primary="0DA" secondary="95D" />
+  
+  <!-- Emblem of the team (Used on the spawns, the poles and the UI) -->
+  <!-- Must be a dds file in BC1/DXT1 with mipmaps of 512x512 pixels-->
+	<emblem>http://www.example.com/Emblem_Example.dds</emblem>
+	
+	<!-- Players list -->
+	<players>
+    <!-- ManiaPlanet login of the player -->
+		<player login="nallraen">
+      <!-- Nickname of the player (Can be used by game modes to automatically rename the player on the server) -->
+			<nickname>{DevAndMe} Nallraen</nickname>
+			
+      <!-- Avatar of the player (Can be used by game modes to automatically replace the avatar of the player on the server) -->
+      <!-- Any format supported by ManiaPlanet can be used (jpg, png, tga, dds, bik) -->
+			<avatar>http://www.example.com/Avatar_Example1.png</avatar>
+		</player>
+    
+    <!-- You can add as many players as you want -->
+		<player login="Example2">
+			<nickname>I'm another Example</nickname>
+			<avatar>http://www.example.com/Avatar_Example2.png</avatar>
+		</player>
+	</players>
+  
+  <!-- Sponsors list -->
+  <!-- They'll be displayed on the sides of the screen during the end of the rounds/maps  -->
+	<sponsors>
+    <!-- Name of the sponsors -->
+		<sponsor name="DevAndMe">
+      <!-- Image of the sponsor -->
+      <!-- Any format supported by ManiaPlanet can be used (jpg, png, tga, dds, bik), image ratio 2:1. -->
+			<image_2x1>http://www.example.com/Sponsor_1.png</image_2x1>
+		</sponsor>
+    <!-- You can add as many sponsors as you want -->
+	</sponsors>
+</club>
